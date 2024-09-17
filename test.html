@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Countdown</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgba(255, 255, 255, 0.8); /* White background with transparency */
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .message {
+            font-size: 2em;
+            margin: 20px;
+        }
+
+        .countdown {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px;
+        }
+
+        .countdown.hidden {
+            display: none;
+        }
+
+        .countdown.red {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>คืนแรก   </h1>
+    <div class="message" id="message">หมาป่าถึงเวลาโหวตคนที่จะกำจัด</div>
+    <div class="countdown" id="countdown">40</div>
+    <audio id="wolf-audio" src="sound/wolf.mp3"></audio>
+    <audio id="nurse-audio" src="sound/wolf.mp3"></audio>
+    <audio id="timeout-audio" src="sound/wolf.mp3"></audio>
+
+    <script>
+        function playAudio(id) {
+            const audioElement = document.getElementById(id);
+            audioElement.play();
+        }
+        function stopAudio(id) {
+            const audioElement = document.getElementById(id);
+            audioElement.pause();
+            audioElement.currentTime = 0;
+        }
+
+        function startCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            const messageElement = document.getElementById('message');
+            
+            // Initial message for wolves
+            messageElement.textContent = "หมาป่าถึงเวลาโหวตคนที่จะกำจัด";
+            playAudio('wolf-audio');
+
+            const wolfAudio = document.getElementById('wolf-audio');
+            wolfAudio.onended = function() {
+                messageElement.textContent = "หมาป่าเหลือเวลาโหวตคนที่จะกำจัด";
+                let timeLeft = 40;
+                const countdownInterval = setInterval(() => {
+                    countdownElement.textContent = timeLeft;
+                    if (timeLeft <= 5) {
+                        if (timeLeft==5) {
+                            playAudio('timeout-audio');
+                        }
+                        countdownElement.classList.add('red');
+                    }
+                    if (timeLeft === 0) {
+                        clearInterval(countdownInterval);
+                        countdownElement.classList.add('hidden');
+                        stopAudio('timeout-audio');
+
+                        // Change to nurse phase after timeout
+                        setTimeout(() => {
+                            messageElement.textContent = "พยาบาลถึงเวลาที่ต้องโหวตคนที่ต้องการจะปกป้อง";
+                            playAudio('nurse-audio');
+
+                            const nurseAudio = document.getElementById('nurse-audio');
+                            nurseAudio.onended = function() {
+                                messageElement.textContent = "พยาบาลเหลือเวลาโหวตคนที่จะปกป้อง";
+                                let timeLeft = 40;
+                                const countdownElement = document.getElementById('countdown');
+                                countdownElement.classList.remove('hidden');
+                                countdownElement.classList.remove('red');
+                                const countdownInterval = setInterval(() => {
+                                    countdownElement.textContent = timeLeft;
+                                    if (timeLeft <= 5) {
+                                        if (timeLeft==5) {
+                                            playAudio('timeout-audio');
+                                        }   
+                                        countdownElement.classList.add('red');
+                                    }
+                                    if (timeLeft === 0) {
+                                        clearInterval(countdownInterval);
+                                        countdownElement.classList.add('hidden');
+                                        stopAudio('timeout-audio');
+
+                                        // Change to seer phase after timeout
+                                        setTimeout(() => {
+                                            messageElement.textContent = "ผู้หยั่งรู้ถึงเวลาที่ต้องเลือกคนที่ต้องการจะส่อง";
+                                            playAudio('seer-audio');
+
+                                            const seerAudio = document.getElementById('seer-audio');
+                                            seerAudio.onended = function() {
+                                                messageElement.textContent = "ผู้หยั่งรู้ถึงเวลาส่องคนที่เลือก";
+                                                let timeLeft = 40;
+                                                countdownElement.classList.remove('hidden');
+                                                countdownElement.classList.remove('red');
+                                                const countdownInterval = setInterval(() => {
+                                                    countdownElement.textContent = timeLeft;
+                                                    if (timeLeft <= 5) {
+                                                        if (timeLeft==5) {
+                                                            playAudio('timeout-audio');
+                                                        }   
+                                                        countdownElement.classList.add('red');
+                                                    }
+                                                    if (timeLeft === 0) {
+                                                        clearInterval(countdownInterval);
+                                                        countdownElement.classList.add('hidden');
+                                                        stopAudio('seer-audio');
+                                                    }
+                                                    timeLeft--;
+                                                }, 1000);
+                                            };
+                                        }, 1000); // Delay for a smooth transition
+                                    }
+                                    timeLeft--;
+                                }, 1000);
+                            };
+                        }, 1000); // Delay for a smooth transition
+                    }
+                    timeLeft--;
+                }, 1000);
+            };
+        }
+
+        window.onload = startCountdown;
+    </script>
+</body>
+</html>
